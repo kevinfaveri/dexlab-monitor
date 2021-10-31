@@ -3,16 +3,43 @@ import { useEffect } from "react";
 import useSWR from "swr";
 import useLocalStorage from './useLocalStorage'
 
-// ALWAYS UPDATE VOLUME OF OLDER AND NEW COINS
 export default function useShitcoins() {
+  const [volumeBelow, setVolumeBelow] = useLocalStorage("volumeBelow", 1000000);
   const { data, mutate, isValidating } = useSWR('https://api.dexlab.space/v1/analytics/markets', axios, {
     refreshInterval: 15000
   })
   const [initialTokenList, setInitialTokenList] = useLocalStorage("initialTokenList", null);
   const [newTokenList, setNewTokenList] = useLocalStorage("newTokenList", null);
+  const [shitCoinRocketList, setShitcoinRocketList] = useLocalStorage("shitcoinRocketList", []);
 
   useEffect(() => {
-    const newData = data?.data?.data
+    let newData = data?.data?.data
+    newData = newData?.filter((token) => token.pair.includes('/USDC'))
+    const initialTokenListFailProof = (initialTokenList || [])
+    let shitCoinRocketListAux = [...shitCoinRocketList]
+    if (newData) {
+      for (let index = 0; index < initialTokenListFailProof.length; index++) {
+        const currentToken = initialTokenListFailProof[index];
+        const newVolume = newData.find((token) => token.pair === currentToken.pair).todayVolume
+        if (volumeBelow > Number(newVolume)) {
+          const tokenVolObj = {
+            pair: currentToken.pair,
+            oldVolume: currentToken.todayVolume,
+            newVolume
+          }
+          const foundShitcoin = shitCoinRocketListAux.findIndex((token) => token.pair === currentToken.pair)
+          if (foundShitcoin) shitCoinRocketListAux[foundShitcoin] = tokenVolObj
+          else {
+            shitCoinRocketListAux.push(tokenVolObj)
+          }
+        }
+      }
+    }
+
+    shitCoinRocketListAux = shitCoinRocketListAux.filter((token) => token.oldVolume !== token.newVolume && Number(token.newVolume) > Number(token.oldVolume))
+    shitCoinRocketListAux?.sort((a, b) => Number(b.newVolume) - Number(a.newVolume))
+    setShitcoinRocketList(shitCoinRocketListAux)
+
     const initialTokenListUpdated = initialTokenList ? newData?.filter(ar => initialTokenList?.find(token => (token.pair === ar.pair))) : newData
     if (initialTokenListUpdated) {
       initialTokenListUpdated?.sort((a, b) => Number(b.todayVolume) - Number(a.todayVolume))
@@ -38,6 +65,9 @@ export default function useShitcoins() {
     newTokenList,
     updateData: mutate,
     isUpdating: isValidating,
-    removeFromNewListAddToInitialList
+    removeFromNewListAddToInitialList,
+    volumeBelow,
+    setVolumeBelow,
+    shitCoinRocketList
   }
 }

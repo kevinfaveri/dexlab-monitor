@@ -18,6 +18,9 @@ export default function Home() {
     newTokenList,
     updateData,
     isUpdating,
+    volumeBelow,
+    setVolumeBelow,
+    shitCoinRocketList,
     removeFromNewListAddToInitialList
   } = useShitcoins()
 
@@ -57,7 +60,7 @@ export default function Home() {
                       </dt>
                       <Disclosure.Panel as="dd" className="mt-2 pr-12">
                         {initialTokenList?.map((token) => {
-                          return <p className="text-base text-gray-200 font-bold"
+                          return <p className="text-base text-gray-200 font-bold text-right"
                             key={token.pair}>
                             {token.pair} | TODAY VOLUME: {formatter.format(token.todayVolume)}
                           </p>
@@ -89,8 +92,20 @@ export default function Home() {
 
         <div className="pt-5">
           <h1 className="font-medium text-gray-200">
-            VOLUME SPIKE TOKEN SPIKE (LAST FEW MINUTES) - WIP
+            SHITCOIN TAKING OFF WITH VOLUME BELOW <input
+              type="number"
+              min="1"
+              max="100000000"
+              value={volumeBelow}
+              onChange={(e) => setVolumeBelow(Number(e.target.value))}
+              className="bg-black border-2 border-light-300 text-gray-200" />
           </h1>
+          {shitCoinRocketList?.map((token) => {
+            return <p className="text-base text-green-500 font-bold flex justify-end my-5 space-x-5"
+              key={token.pair}>
+              <span>{token.pair} | FROM {formatter.format(token.oldVolume)} TO {formatter.format(token.newVolume)}</span>
+            </p>
+          })}
         </div>
 
       </main >
