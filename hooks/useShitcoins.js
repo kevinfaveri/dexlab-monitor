@@ -23,7 +23,7 @@ export default function useShitcoins() {
         const newVolume = newData.find((token) => token.pair === currentToken.pair).todayVolume
         if (Number(volumeBelow) > Number(newVolume) && Number(newVolume) > Number(currentToken.todayVolume)) {
           const diff = Number(newVolume) - Number(currentToken.todayVolume)
-          if (diff > 1000) {
+          if (diff > 500) {
             const tokenVolObj = {
               pair: currentToken.pair,
               oldVolume: currentToken.todayVolume,
