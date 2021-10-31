@@ -21,17 +21,18 @@ export default function useShitcoins() {
       for (let index = 0; index < initialTokenListFailProof.length; index++) {
         const currentToken = initialTokenListFailProof[index];
         const newVolume = newData.find((token) => token.pair === currentToken.pair).todayVolume
-
         if (Number(volumeBelow) > Number(newVolume) && Number(newVolume) > Number(currentToken.todayVolume)) {
-
-          const tokenVolObj = {
-            pair: currentToken.pair,
-            oldVolume: currentToken.todayVolume,
-            newVolume
+          const diff = Number(newVolume) - Number(currentToken.todayVolume)
+          if (diff > 500) {
+            const tokenVolObj = {
+              pair: currentToken.pair,
+              oldVolume: currentToken.todayVolume,
+              newVolume
+            }
+            const foundShitcoin = shitCoinRocketListAux.findIndex((token) => token.pair === currentToken.pair)
+            if (foundShitcoin !== -1) shitCoinRocketListAux[foundShitcoin] = tokenVolObj
+            else shitCoinRocketListAux.push(tokenVolObj)
           }
-          const foundShitcoin = shitCoinRocketListAux.findIndex((token) => token.pair === currentToken.pair)
-          if (foundShitcoin !== -1) shitCoinRocketListAux[foundShitcoin] = tokenVolObj
-          else shitCoinRocketListAux.push(tokenVolObj)
         }
       }
     }
