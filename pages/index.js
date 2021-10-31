@@ -1,14 +1,26 @@
 import Head from 'next/head'
-import useNewTokens from '../hooks/useNewTokens'
+import useShitcoins from '../hooks/useShitcoins'
 import { Disclosure } from '@headlessui/react'
-import { ChevronDownIcon, ChevronRightIcon, CheckCircleIcon } from '@heroicons/react/outline'
+import { ChevronRightIcon, CheckCircleIcon, RefreshIcon } from '@heroicons/react/outline'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
+const formatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
+
 export default function Home() {
-  const { initialTokenList, newTokenList } = useNewTokens()
+  const {
+    initialTokenList,
+    newTokenList,
+    updateData,
+    isUpdating,
+    removeFromNewListAddToInitialList
+  } = useShitcoins()
+
   return (
     <div>
       <Head>
@@ -17,7 +29,13 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex flex-col justify-center items-center">
+      <div className="flex justify-end">
+        <button type="button" onClick={updateData}>
+          <RefreshIcon className={`${isUpdating ? 'animate animate-spin' : ''} text-blue-500 h-10 w-10 m-5`} />
+        </button>
+      </div>
+      <main className="flex flex-col justify-center items-center divide-y-4 divide-light-200 space-y-5">
+
 
         <div>
           <div className="max-w-7xl mx-auto py-12 px-4 sm:py-16 sm:px-6 lg:px-8">
@@ -41,7 +59,7 @@ export default function Home() {
                         {initialTokenList?.map((token) => {
                           return <p className="text-base text-gray-200 font-bold"
                             key={token.pair}>
-                            {token.pair} | TODAY VOLUME: {token.todayVolume}
+                            {token.pair} | TODAY VOLUME: {formatter.format(token.todayVolume)}
                           </p>
                         })}
                       </Disclosure.Panel>
@@ -53,21 +71,27 @@ export default function Home() {
           </div>
         </div>
 
-        <h1 className="font-medium text-gray-200">NEW TOKEN LIST</h1>
-        {newTokenList?.map((token) => {
-          return <p className="text-base text-red-500 font-bold flex justify-center my-5 space-x-5"
-            key={token.pair}>
-            <span>{token.pair} | TODAY VOLUME: {token.todayVolume}</span>
+        <div className="pt-5">
+          <h1 className="font-medium text-gray-200">NEW TOKEN LIST</h1>
+          {newTokenList?.map((token) => {
+            return <p className="text-base text-red-500 font-bold flex justify-end my-5 space-x-5"
+              key={token.pair}>
+              <span>{token.pair} | TODAY VOLUME: {formatter.format(token.todayVolume)}</span>
 
-            <button
-              type="button"
-              className="text-green-300"><CheckCircleIcon className="h-6 w-6" /></button>
-          </p>
-        })}
+              <button
+                type="button"
+                onClick={() => removeFromNewListAddToInitialList(token.pair)}
+                className="text-green-300"><CheckCircleIcon className="h-6 w-6" /></button>
+            </p>
+          })}
+          {newTokenList?.length === 0 && <div className="text-gray-200">No new tokens found</div>}
+        </div>
 
-        <h1 className="font-medium text-gray-200">
-          VOLUME SPIKE TOKEN SPIKE (LAST FEW MINUTES) - WIP
-        </h1>
+        <div className="pt-5">
+          <h1 className="font-medium text-gray-200">
+            VOLUME SPIKE TOKEN SPIKE (LAST FEW MINUTES) - WIP
+          </h1>
+        </div>
 
       </main >
     </div >
