@@ -10,7 +10,7 @@ function percentage(partialValue, totalValue) {
 export default function useShitcoins() {
   const [volumeBelow, setVolumeBelow] = useLocalStorage("volumeBelow", 100000);
   const { data, mutate, isValidating } = useSWR('https://api.dexlab.space/v1/analytics/markets', axios, {
-    refreshInterval: 15000
+    refreshInterval: 30000
   })
   const [initialTokenList, setInitialTokenList] = useLocalStorage("initialTokenList", null);
   const [newTokenList, setNewTokenList] = useLocalStorage("newTokenList", null);
