@@ -3,6 +3,10 @@ import { useEffect, useState } from "react";
 import useSWR from "swr";
 import useLocalStorage from './useLocalStorage'
 
+function percentage(partialValue, totalValue) {
+  return (100 * partialValue) / totalValue;
+}
+
 export default function useShitcoins() {
   const [volumeBelow, setVolumeBelow] = useLocalStorage("volumeBelow", 100000);
   const { data, mutate, isValidating } = useSWR('https://api.dexlab.space/v1/analytics/markets', axios, {
@@ -23,7 +27,8 @@ export default function useShitcoins() {
         const newVolume = newData.find((token) => token.pair === currentToken.pair).todayVolume
         if (Number(volumeBelow) > Number(newVolume) && Number(newVolume) > Number(currentToken.todayVolume)) {
           const diff = Number(newVolume) - Number(currentToken.todayVolume)
-          if (diff > 500) {
+          const percent = percentage(diff, Number(currentToken.todayVolume))
+          if (percent > 5 && percent <= 50) {
             const tokenVolObj = {
               pair: currentToken.pair,
               oldVolume: currentToken.todayVolume,
