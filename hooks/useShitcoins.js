@@ -28,7 +28,7 @@ export default function useShitcoins() {
         if (Number(volumeBelow) > Number(newVolume) && Number(newVolume) > Number(currentToken.todayVolume)) {
           const diff = Number(newVolume) - Number(currentToken.todayVolume)
           const percent = percentage(diff, Number(currentToken.todayVolume))
-          if (percent > 5 && percent <= 50) {
+          if (percent > 15 && percent <= 50) {
             const tokenVolObj = {
               pair: currentToken.pair,
               oldVolume: currentToken.todayVolume,
